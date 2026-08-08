@@ -1,0 +1,15 @@
+# The single operation the application issues. Every filter travels as a
+# variable so that PostgreSQL - not the browser - decides which rows come back.
+#
+# GraphQL Codegen reads this file and generates a fully typed
+# `useCharactersQuery` hook from it (see codegen.ts).
+query Characters($filter: CharacterFilterInput) {
+  characters(filter: $filter) {
+    id
+    name
+    image
+    status
+    gender
+    description
+  }
+}

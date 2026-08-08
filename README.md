@@ -38,8 +38,8 @@ npm run dev
 Open <http://localhost:3000>. Try <http://localhost:3000/?search=Sanchez> to see
 a filter restored straight from the URL.
 
-> The generated GraphQL types are committed, so the frontend runs without a
-> codegen step. Run `npm run codegen` after changing a query or the schema.
+> The generated types and hooks are committed, so the frontend runs without a
+> codegen step. Run `npm run codegen` after changing an operation or the schema.
 
 ---
 
@@ -55,7 +55,7 @@ nuqs  ──────────────►  URL updates immediately   ?
 useDebouncedValue (300 ms)   ← only the text input is debounced
       │
       ▼
-React Query queryKey changes  ['characters', { search, status, gender }]
+queryKey of the generated hook changes  ['Characters', { filter: {...} }]
       │
       ▼
 POST /graphql   query Characters($filter: CharacterFilterInput)
@@ -124,14 +124,14 @@ full catalogue. A search of only whitespace is discarded rather than sent as a
 │       ├── prisma/               Connection lifecycle only
 │       └── main.ts               CORS, validation, shutdown hooks
 └── frontend/
-    ├── codegen.ts                Client preset, reads ../backend/schema.gql
+    ├── codegen.ts                Generates types + hooks from ../backend/schema.gql
     └── src/
         ├── app/                  Server layout + page, client Providers
         ├── components/           Card, filters, skeletons, empty/error states
-        ├── features/characters/  Query document, URL contract, data hook
-        ├── gql/                  Generated — do not edit
+        ├── features/characters/  characters.graphql, URL contract, data hook
+        ├── gql/graphql.ts        Generated types + useCharactersQuery — do not edit
         ├── hooks/
-        └── lib/                  Typed GraphQL fetcher
+        └── lib/                  Fetcher wired into the generated hooks
 ```
 
 ---
@@ -156,7 +156,7 @@ full catalogue. A search of only whitespace is discarded rather than sent as a
 | --- | --- |
 | `npm run dev` | Dev server |
 | `npm run build` | Production build |
-| `npm run codegen` | Regenerate types from the SDL |
+| `npm run codegen` | Regenerate types + hooks from the SDL |
 | `npm run lint` | ESLint |
 
 ---
@@ -207,11 +207,18 @@ const object plus a string union rather than a native TS `enum`.
 `registerEnumType` accepts that object directly, so the database stays the
 single source of truth and there is no duplicated list to fall out of sync.
 
-**ADR-004 — Codegen client preset.** `@graphql-codegen/client-preset` produces
-`TypedDocumentNode`s instead of per-library hooks. Result and variable types are
-inferred at the call site, which is why this repository contains **no
-hand-written interface for any GraphQL response**. It is also network-library
-agnostic and smaller than the legacy `typescript-react-query` plugin.
+**ADR-004 — Codegen generates the hooks, not just the types.** The operation
+lives in `characters.graphql`, and codegen emits both the operation types and a
+typed `useCharactersQuery` hook (`typescript-react-query`, configured with
+`reactQueryVersion: 5`). This repository therefore contains **no hand-written
+interface for any GraphQL response and no hand-written query hook**.
+
+The alternative was `client-preset`, which emits `TypedDocumentNode`s and
+leaves you to write the hook. It is the leaner, more transport-agnostic option,
+but the brief asks for generated "queries **and hooks**", and generated hooks
+also remove the last place where a query could drift from its types by hand.
+`useCharacters` still exists as a thin wrapper, but only to supply variables
+from the URL and adapt the result — it does no fetching of its own.
 
 **ADR-005 — URL as the single source of truth.** Filters live in the URL via
 nuqs, so views are shareable and survive a reload. No Redux or Zustand: the
