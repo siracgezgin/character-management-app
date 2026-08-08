@@ -209,6 +209,11 @@ container answers without re-bootstrapping (measured locally: 3 ms).
 it can be committed and read by the frontend's codegen. Vercel's filesystem is
 read-only, so the deployed build generates the same schema in memory instead.
 
+**Region co-location.** The function is pinned to `fra1` in `vercel.json` to
+match the Supabase region. Without this, Vercel's default region would put the
+function on another continent from the database and add a round trip to every
+query.
+
 **Two database URLs.** Supabase's transaction pooler (port 6543) is right for
 serverless request handling, but Prisma Migrate needs the advisory locks a
 pooler cannot provide. `DATABASE_URL` therefore points at the pooler and
