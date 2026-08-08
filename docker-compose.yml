@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: character-management-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: character_app
+      POSTGRES_PASSWORD: character_app_password
+      POSTGRES_DB: character_management
+      # Force a UTF-8 collation so that case-insensitive search behaves
+      # predictably for non-ASCII alphabets (see ADR-001 in README.md).
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=C.UTF-8'
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U character_app -d character_management']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  postgres_data:
