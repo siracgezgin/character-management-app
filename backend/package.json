@@ -4,6 +4,7 @@
   "description": "NestJS + GraphQL + Prisma backend for the Character Management Application",
   "private": true,
   "scripts": {
+    "postinstall": "prisma generate",
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
