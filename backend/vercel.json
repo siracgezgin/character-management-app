@@ -1,9 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "prisma generate && nest build",
-  "installCommand": "npm install",
   "framework": null,
   "regions": ["fra1"],
+  "installCommand": "npm install",
+  "buildCommand": "prisma generate && nest build",
+  "outputDirectory": "public",
   "functions": {
     "api/index.ts": {
       "maxDuration": 30,
@@ -11,6 +12,7 @@
     }
   },
   "rewrites": [
-    { "source": "/(.*)", "destination": "/api" }
+    { "source": "/graphql", "destination": "/api" },
+    { "source": "/graphql/(.*)", "destination": "/api" }
   ]
 }

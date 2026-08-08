@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Character Management API</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, sans-serif;
+        background: #f7f7f8;
+        color: #16161a;
+      }
+      @media (prefers-color-scheme: dark) {
+        body { background: #0b0b0f; color: #ededf0; }
+        .card { background: #15151b !important; border-color: #26262f !important; }
+        code { background: #1d1d25 !important; }
+      }
+      .card {
+        max-width: 34rem;
+        margin: 2rem;
+        padding: 2rem;
+        border: 1px solid #e2e2e7;
+        border-radius: 12px;
+        background: #fff;
+      }
+      h1 { margin: 0 0 .5rem; font-size: 1.25rem; }
+      p { margin: 0 0 1rem; }
+      code {
+        background: #f1f1f3;
+        padding: .15rem .4rem;
+        border-radius: 4px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: .875em;
+      }
+      a { color: #4f46e5; }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>Character Management API</h1>
+      <p>
+        This is the GraphQL backend. The interactive explorer lives at
+        <a href="/graphql"><code>/graphql</code></a>.
+      </p>
+      <p>
+        Filtering and search are performed server-side; the browser never
+        receives rows that do not match the query.
+      </p>
+      <p>
+        Source:
+        <a href="https://github.com/siracgezgin/character-management-app"
+          >github.com/siracgezgin/character-management-app</a
+        >
+      </p>
+    </main>
+  </body>
+</html>
