@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    // Kept inside the output directory so that `nest build`'s `deleteOutDir`
+    // invalidates the incremental cache along with the emitted files.
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "prisma", "prisma.config.ts"]
+}
