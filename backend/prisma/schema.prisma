@@ -1,0 +1,35 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [pg_trgm]
+}
+
+enum Status {
+  ALIVE
+  DEAD
+  UNKNOWN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+model Character {
+  id          Int    @id @default(autoincrement())
+  name        String
+  image       String
+  status      Status
+  gender      Gender
+  description String
+
+  @@index([status])
+  @@index([gender])
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([description(ops: raw("gin_trgm_ops"))], type: Gin)
+}
