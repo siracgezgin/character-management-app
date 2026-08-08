@@ -1,0 +1,88 @@
+@import 'tailwindcss';
+
+/**
+ * Light palette on :root, with the dark values overridden inside the
+ * prefers-color-scheme block. Every colour used by the UI is a token so the
+ * two themes stay consistent.
+ */
+:root {
+  --background: #f7f7f8;
+  --surface: #ffffff;
+  --surface-muted: #f1f1f3;
+  --foreground: #16161a;
+  --foreground-muted: #6b6b76;
+  --border: #e2e2e7;
+  --border-strong: #cfcfd6;
+  --accent: #4f46e5;
+  --accent-foreground: #ffffff;
+  --ring: #6366f1;
+
+  --status-alive: #047857;
+  --status-alive-bg: #d1fae5;
+  --status-dead: #b91c1c;
+  --status-dead-bg: #fee2e2;
+  --status-unknown: #57534e;
+  --status-unknown-bg: #e7e5e4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0b0b0f;
+    --surface: #15151b;
+    --surface-muted: #1d1d25;
+    --foreground: #ededf0;
+    --foreground-muted: #9a9aa8;
+    --border: #26262f;
+    --border-strong: #35353f;
+    --accent: #6366f1;
+    --accent-foreground: #ffffff;
+    --ring: #818cf8;
+
+    --status-alive: #6ee7b7;
+    --status-alive-bg: #064e3b;
+    --status-dead: #fca5a5;
+    --status-dead-bg: #7f1d1d;
+    --status-unknown: #d6d3d1;
+    --status-unknown-bg: #3f3f46;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-border-subtle: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ring: var(--ring);
+
+  --color-status-alive: var(--status-alive);
+  --color-status-alive-bg: var(--status-alive-bg);
+  --color-status-dead: var(--status-dead);
+  --color-status-dead-bg: var(--status-dead-bg);
+  --color-status-unknown: var(--status-unknown);
+  --color-status-unknown-bg: var(--status-unknown-bg);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Respect users who have asked the OS to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
