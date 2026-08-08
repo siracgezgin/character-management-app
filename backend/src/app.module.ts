@@ -19,7 +19,12 @@ import { PrismaModule } from './prisma/prisma.module';
      */
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'schema.gql'),
+      // Locally the SDL is written to disk so it can be committed and consumed
+      // by the frontend's codegen. On Vercel the filesystem is read-only, so
+      // `true` builds the same schema in memory instead.
+      autoSchemaFile: process.env.VERCEL
+        ? true
+        : join(process.cwd(), 'schema.gql'),
       sortSchema: true,
       // Apollo's built-in landing page, served at http://localhost:4000/graphql
       playground: false,

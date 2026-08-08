@@ -113,6 +113,8 @@ full catalogue. A search of only whitespace is discarded rather than sent as a
 │   │   ├── migrations/           Includes the pg_trgm extension + GIN indexes
 │   │   └── seed.ts               27 deterministic characters, idempotent
 │   ├── prisma.config.ts          Datasource URL + seed command (Prisma 7)
+│   ├── api/index.ts              Vercel serverless entry (imports dist/)
+│   ├── vercel.json               Build + routing for the API deployment
 │   ├── schema.gql                Generated SDL — committed for the frontend
 │   └── src/
 │       ├── characters/
@@ -122,7 +124,8 @@ full catalogue. A search of only whitespace is discarded rather than sent as a
 │       │   ├── characters.service.spec.ts
 │       │   └── dto/character-filter.input.ts
 │       ├── prisma/               Connection lifecycle only
-│       └── main.ts               CORS, validation, shutdown hooks
+│       ├── configure-app.ts      Pipes + CORS shared by both entry points
+│       └── main.ts               Local entry point
 └── frontend/
     ├── codegen.ts                Generates types + hooks from ../backend/schema.gql
     └── src/
@@ -186,6 +189,57 @@ the full dataset never reaches the browser.
 
 ```bash
 cd backend && npm test     # 12 unit tests covering filter composition
+```
+
+---
+
+## Deployment
+
+The app is deployed as two Vercel projects (frontend and API) against a
+Supabase PostgreSQL database.
+
+**Backend on serverless.** `backend/api/index.ts` imports from `dist/`, the
+output of `nest build`, rather than from `src/`. Vercel bundles functions with
+esbuild, which does not support `emitDecoratorMetadata` — and NestJS depends on
+that metadata for dependency injection. Compiling with `tsc` first keeps the
+metadata intact. The initialised app is cached across invocations, so a warm
+container answers without re-bootstrapping (measured locally: 3 ms).
+
+**Schema generation.** `autoSchemaFile` writes `schema.gql` to disk locally so
+it can be committed and read by the frontend's codegen. Vercel's filesystem is
+read-only, so the deployed build generates the same schema in memory instead.
+
+**Two database URLs.** Supabase's transaction pooler (port 6543) is right for
+serverless request handling, but Prisma Migrate needs the advisory locks a
+pooler cannot provide. `DATABASE_URL` therefore points at the pooler and
+`DIRECT_URL` at the direct connection (port 5432); migrations and the seeder
+prefer the latter.
+
+### Environment variables
+
+Backend project:
+
+| Variable | Value |
+| --- | --- |
+| `DATABASE_URL` | Supabase **Transaction pooler** URI (port 6543), with `?pgbouncer=true&connection_limit=1` |
+| `DIRECT_URL` | Supabase **Direct connection** URI (port 5432) |
+| `CORS_ORIGINS` | The deployed frontend URL |
+| `CORS_ALLOW_VERCEL_PREVIEWS` | `true` to also accept `*.vercel.app` preview origins |
+
+Frontend project:
+
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_GRAPHQL_URL` | The deployed API URL + `/graphql` |
+
+### Applying the schema to Supabase
+
+Run once from your machine, with the Supabase URLs in `backend/.env`:
+
+```bash
+cd backend
+npx prisma migrate deploy
+npx prisma db seed
 ```
 
 ---

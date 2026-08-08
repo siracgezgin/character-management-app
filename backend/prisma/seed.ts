@@ -272,7 +272,9 @@ const characters: CharacterSeed[] = [
 ];
 
 async function main() {
-  const connectionString = process.env.DATABASE_URL;
+  // Prefer the direct connection when one is configured: seeding runs many
+  // statements in sequence, which a transaction-mode pooler handles poorly.
+  const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 
   if (!connectionString) {
     throw new Error(
