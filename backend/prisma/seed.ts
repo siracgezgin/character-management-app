@@ -14,9 +14,10 @@ import 'dotenv/config';
  *  - "Sanchez" appears in one character's NAME (Rick Sanchez) and in another
  *    character's DESCRIPTION (Beth Smith). Searching for it must return both,
  *    which proves the server-side OR across name + description.
- *  - Turkish characters are included ("Şirin Yıldız", "ŞİRİN" in uppercase
- *    inside a description) to exercise case-insensitive matching on non-ASCII
- *    input - something SQLite cannot do (see ADR-001 in the README).
+ *  - Turkish characters are included ("Şirin Yıldız" as a name, "Şirin" inside
+ *    another character's description) to exercise case-insensitive matching on
+ *    a non-ASCII alphabet - something SQLite cannot do (see ADR-001 in the
+ *    README, which also documents the one Unicode case that does not fold).
  */
 type CharacterSeed = {
   id: number;
@@ -238,10 +239,11 @@ const characters: CharacterSeed[] = [
     name: 'Nergis Aydın',
     status: Status.UNKNOWN,
     gender: Gender.FEMALE,
-    // NOTE: contains "ŞİRİN" in uppercase - searching "şirin" in lowercase must
-    // match both this description and the name "Şirin Yıldız" (id 6).
+    // NOTE: contains "Şirin" with a capital Ş - searching "şirin" in lowercase
+    // must match both this description and the name "Şirin Yıldız" (id 6),
+    // which is what proves case-insensitive matching on a non-ASCII alphabet.
     description:
-      'Kayıp bir portal mühendisi. Son raporunda ŞİRİN kod adlı deneyden söz ediyor ve ardından izine rastlanmıyor.',
+      'Kayıp bir portal mühendisi. Son raporunda Şirin kod adlı deneyden söz ediyor ve ardından izine rastlanmıyor.',
   },
 
   // --- UNKNOWN + UNKNOWN ----------------------------------------------------

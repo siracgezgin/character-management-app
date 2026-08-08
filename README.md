@@ -176,7 +176,7 @@ The behaviour below was exercised against the running stack in a real browser
 | 3 | `status=ALIVE` + `gender=FEMALE` | 3 returned (AND) |
 | 4 | `search=Sanchez` | Rick Sanchez (name match) **and** Beth Smith (description match) — proves the OR |
 | 5 | `search=Smith` + `ALIVE` + `MALE` | Morty Smith, Jerry Smith |
-| 6 | `search=şirin` (lowercase) | Matches `Şirin Yıldız` and a description containing `ŞİRİN` |
+| 6 | `search=şirin` (lowercase) | Matches `Şirin Yıldız` (name) and `Nergis Aydın` (description) — case-insensitive across a non-ASCII alphabet |
 | 7 | `search=BilinmeyenBirKarakterX` | Empty array; empty state renders, no crash |
 | 8 | Reload `?search=Smith&status=ALIVE&gender=MALE` | All three controls restored from the URL |
 | 9 | `search="   "` (whitespace) | Treated as no search; all 27 returned |
@@ -253,9 +253,25 @@ npx prisma db seed
 
 **ADR-001 — PostgreSQL over SQLite.** Prisma's `mode: 'insensitive'` is not
 supported on SQLite, and SQLite's `LIKE` is only case-insensitive for ASCII, so
-a search for `şirin` would miss `Şirin`. This was verified rather than assumed:
-on PostgreSQL, `%şirin%` and `%ŞİRİN%` both match `Şirin Yıldız` and a
-description containing `ŞİRİN`. Trade-off: reviewers need Docker.
+a search for `şirin` would miss `Şirin`. On PostgreSQL it matches, verified
+against both the local database and the deployed one. Trade-off: reviewers need
+Docker.
+
+*Unicode caveat, and why `docker-compose.yml` pins the collation.* Case folding
+of non-ASCII letters depends on the collation **provider**, not just the locale.
+Supabase provisions databases with ICU, which applies Unicode *full* case
+mapping: `lower('ŞİRİN')` becomes `şi̇ri̇n` — seven code points, because the
+Turkish dotted capital `İ` (U+0130) folds to `i` plus a combining dot above. The
+libc provider applies *simple* mapping and returns the five-code-point `şirin`
+instead. A database configured with libc would therefore return different search
+results from the deployed one, so the compose file pins ICU with the same locale
+Supabase uses.
+
+The practical consequence is that `şirin`, `Şirin` and `ŞIRIN` all match, while
+`ŞİRİN` typed in full uppercase with the dotted `İ` does not. Making that fold
+too would mean matching on `unaccent()` output through an `IMMUTABLE` wrapper so
+the trigram index still applies — worth doing for a product aimed at Turkish
+users, and out of scope here.
 
 **ADR-002 — Code-first GraphQL.** The SDL is generated from decorated
 TypeScript classes, so schema and resolvers cannot drift apart. The emitted

@@ -1,15 +1,25 @@
 services:
   postgres:
-    image: postgres:17-alpine
+    image: postgres:17
     container_name: character-management-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: character_app
       POSTGRES_PASSWORD: character_app_password
       POSTGRES_DB: character_management
-      # Force a UTF-8 collation so that case-insensitive search behaves
-      # predictably for non-ASCII alphabets (see ADR-001 in README.md).
-      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=C.UTF-8'
+      # Matches how Supabase provisions its databases: ICU as the collation
+      # provider, en_US.UTF-8 as the locale.
+      #
+      # This is not cosmetic. Case folding of non-ASCII letters differs between
+      # providers - libc applies Unicode *simple* mapping while ICU applies
+      # *full* mapping - so a database configured differently here would return
+      # different search results from the deployed one. See the Unicode note
+      # under ADR-001 in README.md.
+      POSTGRES_INITDB_ARGS: >-
+        --encoding=UTF8
+        --locale-provider=icu
+        --icu-locale=en-US
+        --locale=en_US.UTF-8
     ports:
       - '${POSTGRES_PORT:-5432}:5432'
     volumes:
