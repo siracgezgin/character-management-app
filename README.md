@@ -5,6 +5,9 @@ A full-stack character catalogue with **server-side** filtering and search.
 - **Backend** — NestJS · GraphQL (code-first) · Prisma · PostgreSQL
 - **Frontend** — Next.js (App Router) · GraphQL Codegen · React Query · nuqs
 
+**Live demo:** <https://character-management-app-fr.vercel.app>
+&nbsp;·&nbsp; **API:** <https://character-management-app-eight.vercel.app/graphql>
+
 The defining constraint of this project is that **no filtering happens in the
 browser**. Every filter and search term is sent to the API as a GraphQL
 variable, translated into a Prisma `where` clause, and applied by PostgreSQL.
@@ -167,7 +170,8 @@ full catalogue. A search of only whitespace is discarded rather than sent as a
 ## Verification
 
 The behaviour below was exercised against the running stack in a real browser
-(Chromium via Playwright), not asserted from the code.
+(Chromium via Playwright), not asserted from the code. Every row was re-checked
+against the deployed site and produced identical results.
 
 | # | Scenario | Result |
 | --- | --- | --- |
