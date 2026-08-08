@@ -1,0 +1,47 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""A character in the catalogue."""
+type Character {
+  description: String!
+  gender: Gender!
+  id: Int!
+
+  """Absolute URL of the portrait image."""
+  image: String!
+  name: String!
+  status: Status!
+}
+
+"""Optional server-side filters for the character list."""
+input CharacterFilterInput {
+  gender: Gender
+
+  """
+  Case-insensitive text matched against both the name and the description.
+  """
+  search: String
+  status: Status
+}
+
+"""The gender of the character."""
+enum Gender {
+  FEMALE
+  MALE
+  UNKNOWN
+}
+
+type Query {
+  """
+  Returns characters matching the given filter. Filtering and search are performed by the database; omitting the filter returns every character.
+  """
+  characters(filter: CharacterFilterInput): [Character!]!
+}
+
+"""Whether the character is currently alive."""
+enum Status {
+  ALIVE
+  DEAD
+  UNKNOWN
+}
